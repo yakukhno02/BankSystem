@@ -1,4 +1,4 @@
-package ua.kpi.banking;
+package kpi.banking;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
