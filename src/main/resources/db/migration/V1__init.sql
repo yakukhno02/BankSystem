@@ -37,6 +37,7 @@ CREATE TABLE transactions (
                               currency VARCHAR(3) NOT NULL,
                               amount DECIMAL(12, 2) NOT NULL CHECK (amount > 0),
                               date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                              description VARCHAR(255),
                               from_account_id INT REFERENCES account(account_id),
                               to_account_id INT REFERENCES account(account_id)
 );

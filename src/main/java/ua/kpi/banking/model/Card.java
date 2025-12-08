@@ -33,5 +33,5 @@ public class Card {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private CardType cardType;
+    private CardType type;
 }
