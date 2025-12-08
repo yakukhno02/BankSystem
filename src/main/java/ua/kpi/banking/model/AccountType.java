@@ -1,4 +1,4 @@
-package kpi.banking.model;
+package ua.kpi.banking.model;
 
 public enum AccountType {
     credit,

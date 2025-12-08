@@ -17,7 +17,7 @@ services:
     container_name: bank-pgadmin
     restart: always
     environment:
-      PGADMIN_DEFAULT_EMAIL: yakukhno.maria@lll.kpi.ua
+      PGADMIN_DEFAULT_EMAIL: yakukhno.maria@lll.ua.kpi.ua
       PGADMIN_DEFAULT_PASSWORD: bank123
     ports:
       - "8088:80"

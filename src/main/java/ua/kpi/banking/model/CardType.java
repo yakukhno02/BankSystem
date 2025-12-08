@@ -1,4 +1,4 @@
-package kpi.banking.model;
+package ua.kpi.banking.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
