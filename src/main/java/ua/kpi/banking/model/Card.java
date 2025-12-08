@@ -31,7 +31,7 @@ public class Card {
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
-    @ManyToOne
-    @JoinColumn(name = "type_id", nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private CardType cardType;
 }
