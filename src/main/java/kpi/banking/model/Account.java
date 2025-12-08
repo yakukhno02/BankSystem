@@ -16,7 +16,7 @@ public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "account_id")
-    private String id;
+    private Long id;
 
     @Column(unique = true, nullable = false, length = 34)
     private String iban;
@@ -32,6 +32,6 @@ public class Account {
     private AccountType type;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id")
+    @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 }
