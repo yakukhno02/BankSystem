@@ -1,5 +1,6 @@
 package ua.kpi.banking.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ua.kpi.banking.model.Customer;
 import ua.kpi.banking.repository.CustomerRepository;
@@ -12,6 +13,7 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
 
+    @Autowired
     public CustomerService(CustomerRepository customerRepository) {
         this.customerRepository = customerRepository;
     }
@@ -45,6 +47,8 @@ public class CustomerService {
     }
 
     public void deleteCustomer(Long id) {
+        Customer existingCustomer = customerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Customer with id " + id + " not found"));
         customerRepository.deleteById(id);
     }
 }
