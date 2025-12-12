@@ -19,24 +19,24 @@ public class LoanController {
     }
 
     @PostMapping
-    public Loan createLoan(@RequestBody Loan loan) {
-        return loanService.createLoan(loan);
+    public ResponseEntity<Loan> createLoan(@RequestBody Loan loan) {
+        return ResponseEntity.ok(loanService.createLoan(loan));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Loan> findLoanById(@PathVariable Long id) {
+    public ResponseEntity<Loan> getLoanById(@PathVariable Long id) {
         return loanService.getLoanById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/account/{accountId}")
-    public ResponseEntity<List<Loan>> findLoanByAccountId(@PathVariable Long accountId) {
+    public ResponseEntity<List<Loan>> getLoanByAccountId(@PathVariable Long accountId) {
         return ResponseEntity.ok(loanService.getByAccountId(accountId));
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<Loan>> findLoanByStatus(@PathVariable LoanStatus status) {
+    public ResponseEntity<List<Loan>> getLoanByStatus(@PathVariable LoanStatus status) {
         return ResponseEntity.ok(loanService.getByStatus(status));
     }
 

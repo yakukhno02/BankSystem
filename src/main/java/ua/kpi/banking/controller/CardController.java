@@ -9,7 +9,7 @@ import ua.kpi.banking.service.CardService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/card")
+@RequestMapping("/api/cards")
 public class CardController {
 
     private final CardService cardService;
@@ -43,7 +43,7 @@ public class CardController {
         return ResponseEntity.ok(cardService.getAllCardsByAccountId(accountId));
     }
 
-    @GetMapping("customer/{customerId}")
+    @GetMapping("/customer/{customerId}")
     public ResponseEntity<List<Card>> getAllCardsByCustomerId(@RequestParam Long customerId) {
         return ResponseEntity.ok(cardService.getAllCardsByCustomerId(customerId));
     }
@@ -54,7 +54,7 @@ public class CardController {
         return ResponseEntity.ok(card);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCard(@PathVariable Long id) {
         cardService.deleteCard(id);
         return ResponseEntity.noContent().build();
