@@ -3,7 +3,8 @@ package ua.kpi.banking.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ua.kpi.banking.model.Account;
+import ua.kpi.banking.dto.account.AccountResponse;
+import ua.kpi.banking.dto.account.CreateAccountRequest;
 import ua.kpi.banking.service.AccountService;
 
 import java.util.List;
@@ -20,31 +21,27 @@ public class AccountController {
     }
 
     @PostMapping
-    public ResponseEntity<Account> createAccount(@RequestBody Account account) {
+    public ResponseEntity<AccountResponse> createAccount(@RequestBody CreateAccountRequest account) {
         return ResponseEntity.ok(accountService.createAccount(account));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Account> getAccount(@PathVariable Long id) {
-        return (accountService.findById(id))
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<AccountResponse> getAccount(@PathVariable Long id) {
+        return ResponseEntity.ok(accountService.findById(id));
     }
 
     @GetMapping("/iban/{iban}")
-    public ResponseEntity<Account> getAccountByIban(@PathVariable String iban) {
-        return (accountService.findByIban(iban))
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<AccountResponse> getAccountByIban(@PathVariable String iban) {
+        return ResponseEntity.ok(accountService.findByIban(iban));
     }
 
     @GetMapping("/customer/{customerId}")
-    public ResponseEntity<List<Account>> getAccountByCustomerId(@PathVariable Long customerId) {
+    public ResponseEntity<List<AccountResponse>> getAccountByCustomerId(@PathVariable Long customerId) {
         return ResponseEntity.ok(accountService.findByCustomerId(customerId));
     }
 
     @GetMapping
-    public ResponseEntity<List<Account>> getAccounts() {
+    public ResponseEntity<List<AccountResponse>> getAccounts() {
         return ResponseEntity.ok(accountService.findAll());
     }
 

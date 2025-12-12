@@ -2,40 +2,66 @@ package ua.kpi.banking.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ua.kpi.banking.dto.account.AccountResponse;
+import ua.kpi.banking.dto.account.CreateAccountRequest;
 import ua.kpi.banking.model.Account;
+import ua.kpi.banking.model.AccountType;
+import ua.kpi.banking.model.Customer;
 import ua.kpi.banking.repository.AccountRepository;
+import ua.kpi.banking.repository.CustomerRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final CustomerRepository customerRepository;
 
     @Autowired
-    public AccountService(AccountRepository accountRepository) {
+    public AccountService(AccountRepository accountRepository, CustomerRepository customerRepository) {
         this.accountRepository = accountRepository;
+        this.customerRepository = customerRepository;
     }
 
-    public Account createAccount(Account account) {
-        return accountRepository.save(account);
+    public AccountResponse createAccount(CreateAccountRequest account) {
+
+        Customer customer = customerRepository.findById(account.getCustomerId())
+                .orElseThrow(()-> new RuntimeException("Customer not found"));
+
+        Account newAccount = new Account();
+        newAccount.setIban(account.getIban());
+        newAccount.setBalance(account.getBalance());
+        newAccount.setCurrency(account.getCurrency());
+        newAccount.setType(AccountType.valueOf(account.getType()));
+        newAccount.setCustomer(customer);
+        accountRepository.save(newAccount);
+
+        return toResponse(newAccount);
     }
 
-    public Optional<Account> findById(Long id) {
-        return accountRepository.findById(id);
+    public AccountResponse findById(Long id) {
+        Account account = accountRepository.findById(id)
+                .orElseThrow(()-> new RuntimeException("Account not found"));
+        return toResponse(account);
     }
 
-    public Optional<Account> findByIban(String iban) {
-        return accountRepository.findByIban(iban);
+    public AccountResponse findByIban(String iban) {
+        Account account = accountRepository.findByIban(iban)
+                .orElseThrow(()-> new RuntimeException("Account not found"));
+        return toResponse(account);
     }
 
-    public List<Account> findByCustomerId(Long customerId) {
-        return accountRepository.findByCustomerId(customerId);
+    public List<AccountResponse> findByCustomerId(Long customerId) {
+        return accountRepository.findByCustomerId(customerId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
-    public List<Account> findAll() {
-        return accountRepository.findAll();
+    public List<AccountResponse> findAll() {
+        return accountRepository.findAll().stream()
+                .map(this::toResponse).toList();
     }
 
     public void deleteAccount(Long id) {
@@ -43,5 +69,16 @@ public class AccountService {
                 .orElseThrow(()-> new RuntimeException("Account with id " + id + " not found"));
         accountRepository.delete(existingAccount);
 
+    }
+
+    private AccountResponse toResponse(Account account) {
+        return new AccountResponse(
+                account.getId(),
+                account.getIban(),
+                account.getBalance(),
+                account.getCurrency(),
+                account.getType().name(),
+                account.getCustomer().getId()
+        );
     }
 }
