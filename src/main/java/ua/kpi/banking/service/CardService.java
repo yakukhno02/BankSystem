@@ -2,54 +2,81 @@ package ua.kpi.banking.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ua.kpi.banking.dto.card.CardResponse;
+import ua.kpi.banking.dto.card.CreateCardRequest;
+import ua.kpi.banking.model.Account;
 import ua.kpi.banking.model.Card;
+import ua.kpi.banking.model.CardType;
+import ua.kpi.banking.repository.AccountRepository;
 import ua.kpi.banking.repository.CardRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CardService {
 
     private final CardRepository cardRepository;
+    private final AccountRepository accountRepository;
 
     @Autowired
-    public CardService(CardRepository cardRepository) {
+    public CardService(CardRepository cardRepository, AccountRepository accountRepository) {
         this.cardRepository = cardRepository;
+        this.accountRepository = accountRepository;
     }
 
-    public Card createCard(Card card) {
-        return cardRepository.save(card);
+    public CardResponse createCard(CreateCardRequest card) {
+
+        Account account = accountRepository.findById(card.getAccountId())
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+
+        Card newCard = new Card();
+        newCard.setCardNumber(card.getCardNumber());
+        newCard.setExpirationDate(card.getExpirationDate());
+        newCard.setType(CardType.valueOf(card.getType()));
+        newCard.setAccount(account);
+
+        cardRepository.save(newCard);
+
+        return toResponse(newCard);
     }
 
-    public Optional<Card> getCardById(Long id) {
-        return cardRepository.findById(id);
+    public CardResponse getCardById(Long id) {
+        return toResponse(cardRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Card not found")));
     }
 
-    public Optional<Card> getCardByNumber(String cardNumber) {
-        return cardRepository.findByCardNumber(cardNumber);
+    public CardResponse getCardByNumber(String cardNumber) {
+        return toResponse(cardRepository.findByCardNumber(cardNumber)
+                .orElseThrow(() -> new RuntimeException("Card not found")));
     }
 
-    public List<Card> getAllCardsByAccountId(Long accountId) {
-        return cardRepository.findByAccountId(accountId);
+    public List<CardResponse> getAllCardsByAccountId(Long accountId) {
+        return cardRepository.findByAccountId(accountId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
-    public List<Card> getAllCardsByCustomerId(Long customerId) {
-        return cardRepository.findByAccountCustomerId(customerId);
-    }
-
-    public Card updateCard(Long id, Card card) {
-        Card existingCard = cardRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("Card with id " + id + " not found"));
-
-        existingCard.setType(card.getType());
-        existingCard.setExpirationDate(card.getExpirationDate());
-        return cardRepository.save(existingCard);
+    public List<CardResponse> getAllCardsByCustomerId(Long customerId) {
+        return cardRepository.findByAccountCustomerId(customerId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     public void deleteCard(Long id) {
         Card existingCard = cardRepository.findById(id)
                 .orElseThrow(()-> new RuntimeException("Card with id " + id + " not found"));
         cardRepository.deleteById(id);
+    }
+
+    private CardResponse toResponse(Card card) {
+        return new CardResponse(
+                card.getId(),
+                card.getCardNumber(),
+                card.getExpirationDate(),
+                card.getType().name(),
+                card.getAccount().getId()
+        );
     }
 }
