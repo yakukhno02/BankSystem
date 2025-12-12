@@ -3,11 +3,13 @@ package ua.kpi.banking.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ua.kpi.banking.dto.customer.CreateCustomerRequest;
+import ua.kpi.banking.dto.customer.CustomerResponse;
+import ua.kpi.banking.dto.customer.UpdateCustomerRequest;
 import ua.kpi.banking.model.Customer;
 import ua.kpi.banking.repository.CustomerRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CustomerService {
@@ -19,23 +21,38 @@ public class CustomerService {
         this.customerRepository = customerRepository;
     }
 
-    public Customer createCustomer(Customer customer) {
-        return customerRepository.save(customer);
+    public CustomerResponse createCustomer(CreateCustomerRequest request) {
+        Customer customer = new Customer();
+        customer.setName(request.getName());
+        customer.setSurname(request.getSurname());
+        customer.setEmail(request.getEmail());
+        customer.setPhoneNumber(request.getPhoneNumber());
+
+        return toResponse(customerRepository.save(customer));
     }
 
-    public Optional<Customer> findById(Long id) {
-        return customerRepository.findById(id);
+    public CustomerResponse findById(Long id) {
+        Customer customer = customerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+        return toResponse(customer);
     }
 
-    public Optional<Customer> findByEmail(String email) {
-        return customerRepository.findByEmail(email);
+    public CustomerResponse findByEmail(String email) {
+        Customer customer = customerRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+        return toResponse(customer);
     }
 
-    public List<Customer> findAll() {
-        return customerRepository.findAll();
+    public List<CustomerResponse> findAll() {
+       return customerRepository.findAll()
+               .stream()
+               .map(this::toResponse)
+               .toList();
     }
 
-    public Customer updateCustomer(Long id, Customer customer) {
+    public CustomerResponse updateCustomer(Long id, UpdateCustomerRequest customer) {
         Customer existingCustomer = customerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Customer with id " + id + " not found"));
 
@@ -44,7 +61,7 @@ public class CustomerService {
         existingCustomer.setEmail(customer.getEmail());
         existingCustomer.setPhoneNumber(customer.getPhoneNumber());
 
-        return customerRepository.save(existingCustomer);
+        return toResponse(customerRepository.save(existingCustomer));
     }
 
     @Transactional
@@ -52,5 +69,15 @@ public class CustomerService {
         Customer existingCustomer = customerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Customer with id " + id + " not found"));
         customerRepository.delete(existingCustomer);
+    }
+
+    private CustomerResponse toResponse(Customer customer) {
+        return new CustomerResponse(
+                customer.getId(),
+                customer.getName(),
+                customer.getSurname(),
+                customer.getEmail(),
+                customer.getPhoneNumber()
+        );
     }
 }

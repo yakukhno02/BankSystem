@@ -3,7 +3,9 @@ package ua.kpi.banking.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ua.kpi.banking.model.Customer;
+import ua.kpi.banking.dto.customer.CreateCustomerRequest;
+import ua.kpi.banking.dto.customer.CustomerResponse;
+import ua.kpi.banking.dto.customer.UpdateCustomerRequest;
 import ua.kpi.banking.service.CustomerService;
 
 import java.util.List;
@@ -19,31 +21,27 @@ public class CustomerController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Customer> registerCustomer(@RequestBody Customer customer) {
-        return ResponseEntity.ok(customerService.createCustomer(customer));
+    public ResponseEntity<CustomerResponse> registerCustomer(@RequestBody CreateCustomerRequest dto) {
+        return ResponseEntity.ok(customerService.createCustomer(dto));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Customer> getCustomer(@PathVariable Long id) {
-        return customerService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<CustomerResponse> getCustomer(@PathVariable Long id) {
+        return ResponseEntity.ok(customerService.findById(id));
     }
 
     @GetMapping("/email/{email}")
-    public ResponseEntity<Customer> getCustomerByEmail(@PathVariable String email) {
-        return customerService.findByEmail(email)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<CustomerResponse> getCustomerByEmail(@PathVariable String email) {
+        return ResponseEntity.ok(customerService.findByEmail(email));
     }
 
     @GetMapping
-    public ResponseEntity<List<Customer>> getAllCustomers() {
+    public ResponseEntity<List<CustomerResponse>> getAllCustomers() {
         return ResponseEntity.ok(customerService.findAll());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Customer> updateCustomer(@PathVariable Long id, @RequestBody Customer customer) {
+    public ResponseEntity<CustomerResponse> updateCustomer(@PathVariable Long id, @RequestBody UpdateCustomerRequest customer) {
         return ResponseEntity.ok(customerService.updateCustomer(id, customer));
     }
 
