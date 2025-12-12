@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ua.kpi.banking.dto.transaction.CreateTransactionRequest;
 import ua.kpi.banking.dto.transaction.TransactionResponse;
-import ua.kpi.banking.model.Transaction;
 import ua.kpi.banking.model.TransactionType;
 import ua.kpi.banking.service.TransactionService;
 
@@ -48,8 +47,8 @@ public class TransactionController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Transaction> deleteTransaction(@PathVariable Long id) {
+    public ResponseEntity<Void>  deleteTransaction(@PathVariable Long id) {
         transactionService.deleteTransaction(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

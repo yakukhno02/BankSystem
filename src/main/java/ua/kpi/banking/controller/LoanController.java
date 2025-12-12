@@ -2,7 +2,9 @@ package ua.kpi.banking.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ua.kpi.banking.model.Loan;
+import ua.kpi.banking.dto.loan.CreateLoanRequest;
+import ua.kpi.banking.dto.loan.LoanResponse;
+import ua.kpi.banking.dto.loan.UpdateLoanRequest;
 import ua.kpi.banking.model.LoanStatus;
 import ua.kpi.banking.service.LoanService;
 
@@ -19,29 +21,27 @@ public class LoanController {
     }
 
     @PostMapping
-    public ResponseEntity<Loan> createLoan(@RequestBody Loan loan) {
+    public ResponseEntity<LoanResponse> createLoan(@RequestBody CreateLoanRequest loan) {
         return ResponseEntity.ok(loanService.createLoan(loan));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Loan> getLoanById(@PathVariable Long id) {
-        return loanService.getLoanById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<LoanResponse> getLoanById(@PathVariable Long id) {
+        return ResponseEntity.ok(loanService.getLoanById(id));
     }
 
     @GetMapping("/account/{accountId}")
-    public ResponseEntity<List<Loan>> getLoanByAccountId(@PathVariable Long accountId) {
+    public ResponseEntity<List<LoanResponse>> getLoanByAccountId(@PathVariable Long accountId) {
         return ResponseEntity.ok(loanService.getByAccountId(accountId));
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<Loan>> getLoanByStatus(@PathVariable LoanStatus status) {
+    public ResponseEntity<List<LoanResponse>> getLoanByStatus(@PathVariable LoanStatus status) {
         return ResponseEntity.ok(loanService.getByStatus(status));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Loan> updateLoan(@PathVariable Long id, @RequestBody Loan loan) {
+    public ResponseEntity<LoanResponse> updateLoan(@PathVariable Long id, @RequestBody UpdateLoanRequest loan) {
         return ResponseEntity.ok(loanService.updateLoan(id, loan));
     }
 

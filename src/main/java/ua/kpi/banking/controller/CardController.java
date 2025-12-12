@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ua.kpi.banking.dto.card.CardResponse;
 import ua.kpi.banking.dto.card.CreateCardRequest;
-import ua.kpi.banking.model.Card;
 import ua.kpi.banking.service.CardService;
 
 import java.util.List;
