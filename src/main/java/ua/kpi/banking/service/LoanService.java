@@ -35,7 +35,7 @@ public class LoanService {
         newLoan.setAmount(loan.getAmount());
         newLoan.setEndDate(loan.getEndDate());
         newLoan.setStartDate(loan.getStartDate());
-        newLoan.setStatus(LoanStatus.valueOf(loan.getStatus()));
+        newLoan.setStatus(loan.getStatus());
         newLoan.setInterestRate(loan.getInterestRate());
         newLoan.setAccount(account);
         newLoan = loanRepository.save(newLoan);
@@ -85,7 +85,7 @@ public class LoanService {
                 loan.getInterestRate(),
                 loan.getStartDate(),
                 loan.getEndDate(),
-                loan.getStatus().name(),
+                loan.getStatus(),
                 loan.getAccount().getId()
         );
     }

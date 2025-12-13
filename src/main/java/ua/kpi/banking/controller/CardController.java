@@ -36,12 +36,12 @@ public class CardController {
     }
 
     @GetMapping("/account/{accountId}")
-    public ResponseEntity<List<CardResponse>> getAllCardsByAccountId(@RequestParam Long accountId) {
+    public ResponseEntity<List<CardResponse>> getAllCardsByAccountId(@PathVariable Long accountId) {
         return ResponseEntity.ok(cardService.getAllCardsByAccountId(accountId));
     }
 
     @GetMapping("/customer/{customerId}")
-    public ResponseEntity<List<CardResponse>> getAllCardsByCustomerId(@RequestParam Long customerId) {
+    public ResponseEntity<List<CardResponse>> getAllCardsByCustomerId(@PathVariable Long customerId) {
         return ResponseEntity.ok(cardService.getAllCardsByCustomerId(customerId));
     }
 

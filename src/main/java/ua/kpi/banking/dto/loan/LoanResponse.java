@@ -2,6 +2,7 @@ package ua.kpi.banking.dto.loan;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import ua.kpi.banking.model.LoanStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,6 +16,6 @@ public class LoanResponse {
     private BigDecimal interestRate;
     private LocalDate startDate;
     private LocalDate endDate;
-    private String status;
+    private LoanStatus status;
     private Long accountId;
 }

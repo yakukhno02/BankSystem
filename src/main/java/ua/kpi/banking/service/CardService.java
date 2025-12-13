@@ -6,7 +6,6 @@ import ua.kpi.banking.dto.card.CardResponse;
 import ua.kpi.banking.dto.card.CreateCardRequest;
 import ua.kpi.banking.model.Account;
 import ua.kpi.banking.model.Card;
-import ua.kpi.banking.model.CardType;
 import ua.kpi.banking.repository.AccountRepository;
 import ua.kpi.banking.repository.CardRepository;
 
@@ -32,7 +31,7 @@ public class CardService {
         Card newCard = new Card();
         newCard.setCardNumber(card.getCardNumber());
         newCard.setExpirationDate(card.getExpirationDate());
-        newCard.setType(CardType.valueOf(card.getType()));
+        newCard.setType(card.getType());
         newCard.setAccount(account);
 
         cardRepository.save(newCard);
@@ -75,7 +74,7 @@ public class CardService {
                 card.getId(),
                 card.getCardNumber(),
                 card.getExpirationDate(),
-                card.getType().name(),
+                card.getType(),
                 card.getAccount().getId()
         );
     }

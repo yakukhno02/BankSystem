@@ -2,6 +2,7 @@ package ua.kpi.banking.dto.card;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import ua.kpi.banking.model.CardType;
 
 import java.time.LocalDate;
 
@@ -11,6 +12,6 @@ public class CardResponse {
     private Long id;
     private String cardNumber;
     private LocalDate expirationDate;
-    private String type;
+    private CardType type;
     private Long accountId;
 }

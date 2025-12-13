@@ -1,16 +1,17 @@
 package ua.kpi.banking.dto.transaction;
 
 import lombok.AllArgsConstructor;
-import lombok.Setter;
+import lombok.Getter;
+import ua.kpi.banking.model.TransactionType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Setter
+@Getter
 @AllArgsConstructor
 public class TransactionResponse {
     private Long id;
-    private String type;
+    private TransactionType type;
     private BigDecimal amount;
     private String currency;
     private LocalDateTime date;

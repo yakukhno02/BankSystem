@@ -10,6 +10,7 @@ import ua.kpi.banking.model.TransactionType;
 import ua.kpi.banking.repository.AccountRepository;
 import ua.kpi.banking.repository.TransactionRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -28,11 +29,11 @@ public class TransactionService {
 
         Transaction newTransaction = new Transaction();
 
-        newTransaction.setAmount(newTransaction.getAmount());
-        newTransaction.setType(newTransaction.getType());
-        newTransaction.setDescription(newTransaction.getDescription());
-        newTransaction.setCurrency(newTransaction.getCurrency());
-        newTransaction.setDate(newTransaction.getDate());
+        newTransaction.setAmount(transaction.getAmount());
+        newTransaction.setType(transaction.getType());
+        newTransaction.setDescription(transaction.getDescription());
+        newTransaction.setCurrency(transaction.getCurrency());
+        newTransaction.setDate(LocalDateTime.now());
 
         if (transaction.getFromAccountId() != null) {
             Account fromAccount = accountRepository.findById(transaction.getFromAccountId())
@@ -85,12 +86,16 @@ public class TransactionService {
     private TransactionResponse toResponse(Transaction transaction) {
         return new TransactionResponse(
                 transaction.getId(),
-                transaction.getType().name(),
+                transaction.getType(),
                 transaction.getAmount(),
                 transaction.getCurrency(),
                 transaction.getDate(),
-                transaction.getFromAccount().getId(),
-                transaction.getToAccount().getId(),
+                transaction.getFromAccount() != null
+                        ? transaction.getFromAccount().getId()
+                        : null,
+                transaction.getToAccount() != null
+                        ? transaction.getToAccount().getId()
+                        : null,
                 transaction.getDescription());
     }
 }

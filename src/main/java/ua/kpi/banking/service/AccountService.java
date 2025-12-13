@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import ua.kpi.banking.dto.account.AccountResponse;
 import ua.kpi.banking.dto.account.CreateAccountRequest;
 import ua.kpi.banking.model.Account;
-import ua.kpi.banking.model.AccountType;
 import ua.kpi.banking.model.Customer;
 import ua.kpi.banking.repository.AccountRepository;
 import ua.kpi.banking.repository.CustomerRepository;
@@ -33,7 +32,7 @@ public class AccountService {
         newAccount.setIban(account.getIban());
         newAccount.setBalance(account.getBalance());
         newAccount.setCurrency(account.getCurrency());
-        newAccount.setType(AccountType.valueOf(account.getType()));
+        newAccount.setType(account.getType());
         newAccount.setCustomer(customer);
         accountRepository.save(newAccount);
 
@@ -77,7 +76,7 @@ public class AccountService {
                 account.getIban(),
                 account.getBalance(),
                 account.getCurrency(),
-                account.getType().name(),
+                account.getType(),
                 account.getCustomer().getId()
         );
     }
