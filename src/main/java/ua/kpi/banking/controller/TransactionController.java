@@ -1,6 +1,5 @@
 package ua.kpi.banking.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ua.kpi.banking.dto.transaction.CreateTransactionRequest;
@@ -16,7 +15,6 @@ public class TransactionController {
 
     private final TransactionService transactionService;
 
-    @Autowired
     public TransactionController(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
