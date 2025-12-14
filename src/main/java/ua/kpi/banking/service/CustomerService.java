@@ -31,6 +31,7 @@ public class CustomerService {
         this.cardRepository = cardRepository;
     }
 
+    @Transactional
     public CustomerResponse createCustomer(CreateCustomerRequest request) {
         Customer customer = new Customer();
         customer.setName(request.getName());
@@ -62,6 +63,7 @@ public class CustomerService {
                .toList();
     }
 
+    @Transactional
     public CustomerResponse updateCustomer(Long id, UpdateCustomerRequest customer) {
         Customer existingCustomer = customerRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Customer with id " + id + " not found"));

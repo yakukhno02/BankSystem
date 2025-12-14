@@ -104,7 +104,6 @@ public class TransactionService {
                 transaction.getDescription());
     }
 
-
     private void handleTransfer(CreateTransactionRequest transaction, Transaction newTransaction) {
 
         Account from = accountRepository.findById(transaction.getFromAccountId())
@@ -166,11 +165,5 @@ public class TransactionService {
         newTransaction.setCurrency(account.getCurrency());
 
         accountRepository.save(account);
-    }
-
-    public void deleteTransaction(Long id) {
-        Transaction existingTransaction = transactionRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Transaction with id" + id + "not found"));
-        transactionRepository.delete(existingTransaction);
     }
 }

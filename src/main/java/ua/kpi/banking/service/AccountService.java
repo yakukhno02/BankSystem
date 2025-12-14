@@ -2,6 +2,7 @@ package ua.kpi.banking.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ua.kpi.banking.dto.account.AccountResponse;
 import ua.kpi.banking.dto.account.CreateAccountRequest;
 import ua.kpi.banking.exception.NotFoundException;
@@ -29,6 +30,7 @@ public class AccountService {
         this.cardRepository = cardRepository;
     }
 
+    @Transactional
     public AccountResponse createAccount(CreateAccountRequest account) {
 
         Customer customer = customerRepository.findByIdAndIsDeletedFalse(account.getCustomerId())
@@ -73,6 +75,7 @@ public class AccountService {
                 .map(this::toResponse).toList();
     }
 
+    @Transactional
     public void deleteAccount(Long id) {
         Account existingAccount = accountRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(()-> new NotFoundException("Account with id " + id + " not found"));

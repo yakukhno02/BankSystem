@@ -2,6 +2,7 @@ package ua.kpi.banking.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ua.kpi.banking.dto.loan.CreateLoanRequest;
 import ua.kpi.banking.dto.loan.LoanResponse;
 import ua.kpi.banking.dto.loan.UpdateLoanRequest;
@@ -26,6 +27,7 @@ public class LoanService {
         this.accountRepository = accountRepository;
     }
 
+    @Transactional
     public LoanResponse createLoan(CreateLoanRequest loan) {
 
         Account account = accountRepository.findById(loan.getAccountId())
@@ -68,6 +70,7 @@ public class LoanService {
                 .toList();
     }
 
+    @Transactional
     public LoanResponse updateLoan(Long id, UpdateLoanRequest loan) {
         Loan existingLoan = loanRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Loan with id " + id + " not found"));
@@ -77,6 +80,7 @@ public class LoanService {
         return toResponse(loanRepository.save(existingLoan));
     }
 
+    @Transactional
     public void deleteLoan(Long id) {
         Loan existingLoan = loanRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Loan with id " + id + " not found"));

@@ -2,6 +2,7 @@ package ua.kpi.banking.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ua.kpi.banking.dto.card.CardResponse;
 import ua.kpi.banking.dto.card.CreateCardRequest;
 import ua.kpi.banking.exception.NotFoundException;
@@ -29,6 +30,7 @@ public class CardService {
         this.customerRepository = customerRepository;
     }
 
+    @Transactional
     public CardResponse createCard(CreateCardRequest card) {
 
         Account account = accountRepository.findById(card.getAccountId())
@@ -77,6 +79,7 @@ public class CardService {
                 .toList();
     }
 
+    @Transactional
     public CardResponse blockCard(Long id) {
         Card card =  cardRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Card not found"));
@@ -92,6 +95,7 @@ public class CardService {
         return toResponse(cardRepository.save(card));
     }
 
+    @Transactional
     public CardResponse closeCard(Long id) {
         Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Card not found"));
