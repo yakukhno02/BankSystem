@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.time.LocalDateTime;
 import java.util.Map;
 
-@ControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
@@ -28,16 +27,6 @@ public class GlobalExceptionHandler {
                 .body(errorBody(
                         HttpStatus.BAD_REQUEST.value(),
                         ex.getMessage()
-                ));
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleOther(Exception ex) {
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(errorBody(
-                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                        "Unexpected error"
                 ));
     }
 

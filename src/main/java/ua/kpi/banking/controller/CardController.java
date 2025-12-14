@@ -26,7 +26,7 @@ public class CardController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CardResponse> getCardById(@RequestParam Long id) {
+    public ResponseEntity<CardResponse> getCardById(@PathVariable Long id) {
         return ResponseEntity.ok(cardService.getCardById(id));
     }
 

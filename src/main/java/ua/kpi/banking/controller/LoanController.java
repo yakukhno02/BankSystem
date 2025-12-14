@@ -1,5 +1,6 @@
 package ua.kpi.banking.controller;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ua.kpi.banking.dto.loan.CreateLoanRequest;
@@ -36,7 +37,7 @@ public class LoanController {
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<LoanResponse>> getLoanByStatus(@PathVariable LoanStatus status) {
+    public ResponseEntity<List<LoanResponse>> getLoanByStatus(@PathVariable @Schema(implementation = LoanStatus.class) LoanStatus status) {
         return ResponseEntity.ok(loanService.getByStatus(status));
     }
 

@@ -40,7 +40,7 @@ public class TransactionController {
     }
 
     @GetMapping("/type/{type}")
-    public ResponseEntity<List<TransactionResponse>> getTransactionsByType(@RequestParam TransactionType type) {
+    public ResponseEntity<List<TransactionResponse>> getTransactionsByType(@PathVariable TransactionType type) {
         return ResponseEntity.ok(transactionService.getByType(type));
     }
 

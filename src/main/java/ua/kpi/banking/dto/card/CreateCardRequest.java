@@ -13,6 +13,5 @@ public class CreateCardRequest {
     private String cardNumber;
     private LocalDate expirationDate;
     private CardType type;
-    private CardStatus status;
     private Long accountId;
 }
