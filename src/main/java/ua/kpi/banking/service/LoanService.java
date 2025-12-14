@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ua.kpi.banking.dto.loan.CreateLoanRequest;
 import ua.kpi.banking.dto.loan.LoanResponse;
 import ua.kpi.banking.dto.loan.UpdateLoanRequest;
+import ua.kpi.banking.exception.NotFoundException;
 import ua.kpi.banking.model.Account;
 import ua.kpi.banking.model.Loan;
 import ua.kpi.banking.model.LoanStatus;
@@ -28,7 +29,7 @@ public class LoanService {
     public LoanResponse createLoan(CreateLoanRequest loan) {
 
         Account account = accountRepository.findById(loan.getAccountId())
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new NotFoundException("Account not found"));
 
         Loan newLoan = new Loan();
 
@@ -45,11 +46,15 @@ public class LoanService {
 
     public LoanResponse getLoanById(Long id) {
         Loan loan = loanRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Loan not found") );
+                .orElseThrow(() -> new NotFoundException("Loan not found") );
         return toResponse(loan);
     }
 
     public List<LoanResponse> getByAccountId(Long accountId) {
+
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new NotFoundException("Account not found"));
+
         return loanRepository.findByAccountId(accountId)
                 .stream()
                 .map(this::toResponse)
@@ -65,7 +70,7 @@ public class LoanService {
 
     public LoanResponse updateLoan(Long id, UpdateLoanRequest loan) {
         Loan existingLoan = loanRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Loan with id " + id + " not found"));
+                .orElseThrow(() -> new NotFoundException("Loan with id " + id + " not found"));
 
         existingLoan.setEndDate(existingLoan.getEndDate());
         existingLoan.setStatus(existingLoan.getStatus());
@@ -74,7 +79,7 @@ public class LoanService {
 
     public void deleteLoan(Long id) {
         Loan existingLoan = loanRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Loan with id " + id + " not found"));
+                .orElseThrow(() -> new NotFoundException("Loan with id " + id + " not found"));
         loanRepository.deleteById(id);
     }
 

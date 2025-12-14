@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ua.kpi.banking.dto.account.AccountResponse;
 import ua.kpi.banking.dto.account.CreateAccountRequest;
+import ua.kpi.banking.exception.NotFoundException;
 import ua.kpi.banking.model.Account;
 import ua.kpi.banking.model.Customer;
 import ua.kpi.banking.repository.AccountRepository;
@@ -26,7 +27,7 @@ public class AccountService {
     public AccountResponse createAccount(CreateAccountRequest account) {
 
         Customer customer = customerRepository.findById(account.getCustomerId())
-                .orElseThrow(()-> new RuntimeException("Customer not found"));
+                .orElseThrow(()-> new NotFoundException("Customer not found"));
 
         Account newAccount = new Account();
         newAccount.setIban(account.getIban());
@@ -41,17 +42,21 @@ public class AccountService {
 
     public AccountResponse findById(Long id) {
         Account account = accountRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("Account not found"));
+                .orElseThrow(()-> new NotFoundException("Account not found"));
         return toResponse(account);
     }
 
     public AccountResponse findByIban(String iban) {
         Account account = accountRepository.findByIban(iban)
-                .orElseThrow(()-> new RuntimeException("Account not found"));
+                .orElseThrow(()-> new NotFoundException("Account not found"));
         return toResponse(account);
     }
 
     public List<AccountResponse> findByCustomerId(Long customerId) {
+
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(()-> new NotFoundException("Customer not found"));
+
         return accountRepository.findByCustomerId(customerId)
                 .stream()
                 .map(this::toResponse)
@@ -65,7 +70,7 @@ public class AccountService {
 
     public void deleteAccount(Long id) {
         Account existingAccount = accountRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("Account with id " + id + " not found"));
+                .orElseThrow(()-> new NotFoundException("Account with id " + id + " not found"));
         accountRepository.delete(existingAccount);
 
     }

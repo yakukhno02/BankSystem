@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ua.kpi.banking.dto.transaction.CreateTransactionRequest;
 import ua.kpi.banking.dto.transaction.TransactionResponse;
+import ua.kpi.banking.exception.BadRequestException;
+import ua.kpi.banking.exception.NotFoundException;
 import ua.kpi.banking.model.Account;
 import ua.kpi.banking.model.AccountType;
 import ua.kpi.banking.model.Transaction;
@@ -32,7 +34,7 @@ public class TransactionService {
     public TransactionResponse createTransaction(CreateTransactionRequest transaction) {
 
         if (transaction.getAmount() == null || transaction.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuntimeException("Amount must be greater than 0");
+            throw new BadRequestException("Amount must be greater than 0");
         }
 
         Transaction newTransaction = new Transaction();
@@ -54,10 +56,14 @@ public class TransactionService {
 
     public TransactionResponse getTransactionById(Long id) {
         return toResponse(transactionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Transaction not found")));
+                .orElseThrow(() -> new NotFoundException("Transaction not found")));
     }
 
     public List<TransactionResponse> getAllByFromAccountId(Long accountId) {
+
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new NotFoundException("Account not found"));
+
         return transactionRepository.findByFromAccountId(accountId)
                 .stream()
                 .map(this::toResponse)
@@ -65,6 +71,10 @@ public class TransactionService {
     }
 
     public List<TransactionResponse> getAllByToAccountId(Long accountId) {
+
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new NotFoundException("Account not found"));
+
         return transactionRepository.findByToAccountId(accountId)
                 .stream()
                 .map(this::toResponse)
@@ -98,21 +108,21 @@ public class TransactionService {
     private void handleTransfer(CreateTransactionRequest transaction, Transaction newTransaction) {
 
         Account from = accountRepository.findById(transaction.getFromAccountId())
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new NotFoundException("Account not found"));
 
         Account to = accountRepository.findById(transaction.getToAccountId())
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new NotFoundException("Account not found"));
 
         if (from.getType() == AccountType.deposit) {
-            throw new RuntimeException("Transfers from deposit account are not allowed");
+            throw new BadRequestException("Transfers from deposit account are not allowed");
         }
 
         if (!from.getCurrency().equals(to.getCurrency())) {
-            throw new RuntimeException("Currencies don't match");
+            throw new BadRequestException("Currencies don't match");
         }
 
         if (from.getBalance().compareTo(transaction.getAmount()) < 0) {
-            throw new RuntimeException("Insufficient funds");
+            throw new BadRequestException("Insufficient funds");
         }
 
         from.setBalance(from.getBalance().subtract(transaction.getAmount()));
@@ -128,14 +138,14 @@ public class TransactionService {
 
     private void handleWithdraw(CreateTransactionRequest transaction, Transaction newTransaction) {
         Account account = accountRepository.findById(transaction.getFromAccountId())
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new NotFoundException("Account not found"));
 
         if (account.getBalance().compareTo(transaction.getAmount()) < 0) {
-            throw new RuntimeException("Insufficient funds");
+            throw new BadRequestException("Insufficient funds");
         }
 
         if (account.getType() == AccountType.deposit) {
-            throw new RuntimeException("Withdraw from deposit account are not allowed");
+            throw new BadRequestException("Withdraw from deposit account are not allowed");
         }
 
         account.setBalance(account.getBalance().subtract(transaction.getAmount()));
@@ -148,7 +158,7 @@ public class TransactionService {
 
     private void handleDeposit(CreateTransactionRequest transaction, Transaction newTransaction) {
         Account account = accountRepository.findById(transaction.getToAccountId())
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new NotFoundException("Account not found"));
 
         account.setBalance(account.getBalance().add(transaction.getAmount()));
 
@@ -160,8 +170,7 @@ public class TransactionService {
 
     public void deleteTransaction(Long id) {
         Transaction existingTransaction = transactionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Transaction with id" + id + "not found"));
-        transactionRepository.deleteById(id);
+                .orElseThrow(() -> new NotFoundException("Transaction with id" + id + "not found"));
+        transactionRepository.delete(existingTransaction);
     }
-
 }

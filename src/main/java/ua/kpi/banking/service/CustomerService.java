@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ua.kpi.banking.dto.customer.CreateCustomerRequest;
 import ua.kpi.banking.dto.customer.CustomerResponse;
 import ua.kpi.banking.dto.customer.UpdateCustomerRequest;
+import ua.kpi.banking.exception.NotFoundException;
 import ua.kpi.banking.model.Customer;
 import ua.kpi.banking.repository.CustomerRepository;
 
@@ -33,14 +34,14 @@ public class CustomerService {
 
     public CustomerResponse findById(Long id) {
         Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
+                .orElseThrow(() -> new NotFoundException("Customer not found"));
 
         return toResponse(customer);
     }
 
     public CustomerResponse findByEmail(String email) {
         Customer customer = customerRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
+                .orElseThrow(() -> new NotFoundException("Customer not found"));
 
         return toResponse(customer);
     }
@@ -54,7 +55,7 @@ public class CustomerService {
 
     public CustomerResponse updateCustomer(Long id, UpdateCustomerRequest customer) {
         Customer existingCustomer = customerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Customer with id " + id + " not found"));
+                .orElseThrow(() -> new NotFoundException("Customer with id " + id + " not found"));
 
         existingCustomer.setName(customer.getName());
         existingCustomer.setSurname(customer.getSurname());
@@ -67,7 +68,7 @@ public class CustomerService {
     @Transactional
     public void deleteCustomer(Long id) {
         Customer existingCustomer = customerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Customer with id " + id + " not found"));
+                .orElseThrow(() -> new NotFoundException("Customer with id " + id + " not found"));
         customerRepository.delete(existingCustomer);
     }
 

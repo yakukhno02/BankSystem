@@ -4,10 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ua.kpi.banking.dto.card.CardResponse;
 import ua.kpi.banking.dto.card.CreateCardRequest;
+import ua.kpi.banking.exception.NotFoundException;
 import ua.kpi.banking.model.Account;
 import ua.kpi.banking.model.Card;
+import ua.kpi.banking.model.Customer;
 import ua.kpi.banking.repository.AccountRepository;
 import ua.kpi.banking.repository.CardRepository;
+import ua.kpi.banking.repository.CustomerRepository;
 
 import java.util.List;
 
@@ -16,17 +19,19 @@ public class CardService {
 
     private final CardRepository cardRepository;
     private final AccountRepository accountRepository;
+    private final CustomerRepository customerRepository;
 
     @Autowired
-    public CardService(CardRepository cardRepository, AccountRepository accountRepository) {
+    public CardService(CardRepository cardRepository, AccountRepository accountRepository, CustomerRepository customerRepository) {
         this.cardRepository = cardRepository;
         this.accountRepository = accountRepository;
+        this.customerRepository = customerRepository;
     }
 
     public CardResponse createCard(CreateCardRequest card) {
 
         Account account = accountRepository.findById(card.getAccountId())
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new NotFoundException("Account not found"));
 
         Card newCard = new Card();
         newCard.setCardNumber(card.getCardNumber());
@@ -41,15 +46,19 @@ public class CardService {
 
     public CardResponse getCardById(Long id) {
         return toResponse(cardRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Card not found")));
+                .orElseThrow(() -> new NotFoundException("Card not found")));
     }
 
     public CardResponse getCardByNumber(String cardNumber) {
         return toResponse(cardRepository.findByCardNumber(cardNumber)
-                .orElseThrow(() -> new RuntimeException("Card not found")));
+                .orElseThrow(() -> new NotFoundException("Card not found")));
     }
 
     public List<CardResponse> getAllCardsByAccountId(Long accountId) {
+
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new NotFoundException("Account not found"));
+
         return cardRepository.findByAccountId(accountId)
                 .stream()
                 .map(this::toResponse)
@@ -57,6 +66,10 @@ public class CardService {
     }
 
     public List<CardResponse> getAllCardsByCustomerId(Long customerId) {
+
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new NotFoundException("Customer not found"));
+
         return cardRepository.findByAccountCustomerId(customerId)
                 .stream()
                 .map(this::toResponse)
@@ -65,7 +78,7 @@ public class CardService {
 
     public void deleteCard(Long id) {
         Card existingCard = cardRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("Card with id " + id + " not found"));
+                .orElseThrow(()-> new NotFoundException("Card with id " + id + " not found"));
         cardRepository.deleteById(id);
     }
 
