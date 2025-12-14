@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Getter
@@ -30,4 +31,7 @@ public class Customer {
 
     @Column(name = "phone_number", nullable = false, length = 20)
     private String phoneNumber;
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
 }

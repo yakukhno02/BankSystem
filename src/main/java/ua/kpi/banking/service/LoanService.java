@@ -72,8 +72,8 @@ public class LoanService {
         Loan existingLoan = loanRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Loan with id " + id + " not found"));
 
-        existingLoan.setEndDate(existingLoan.getEndDate());
-        existingLoan.setStatus(existingLoan.getStatus());
+        existingLoan.setEndDate(loan.getEndDate());
+        existingLoan.setStatus(loan.getStatus());
         return toResponse(loanRepository.save(existingLoan));
     }
 

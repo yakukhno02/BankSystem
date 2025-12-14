@@ -8,7 +8,11 @@ import java.util.Optional;
 
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
-    Optional<Account> findByIban(String iban);
+    Optional<Account> findByIdAndIsDeletedFalse(Long id);
 
-    List<Account> findByCustomerId(Long customerId);
+    Optional<Account> findByIbanAndIsDeletedFalse(String iban);
+
+    List<Account> findByCustomerIdAndIsDeletedFalse(Long customerId);
+
+    List<Account> findAllByIsDeletedFalse();
 }

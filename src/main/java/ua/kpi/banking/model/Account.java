@@ -34,4 +34,7 @@ public class Account {
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
 }

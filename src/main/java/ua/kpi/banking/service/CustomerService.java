@@ -33,28 +33,28 @@ public class CustomerService {
     }
 
     public CustomerResponse findById(Long id) {
-        Customer customer = customerRepository.findById(id)
+        Customer customer = customerRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Customer not found"));
 
         return toResponse(customer);
     }
 
     public CustomerResponse findByEmail(String email) {
-        Customer customer = customerRepository.findByEmail(email)
+        Customer customer = customerRepository.findByEmailAndIsDeletedFalse(email)
                 .orElseThrow(() -> new NotFoundException("Customer not found"));
 
         return toResponse(customer);
     }
 
     public List<CustomerResponse> findAll() {
-       return customerRepository.findAll()
+       return customerRepository.findAllByIsDeletedFalse()
                .stream()
                .map(this::toResponse)
                .toList();
     }
 
     public CustomerResponse updateCustomer(Long id, UpdateCustomerRequest customer) {
-        Customer existingCustomer = customerRepository.findById(id)
+        Customer existingCustomer = customerRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Customer with id " + id + " not found"));
 
         existingCustomer.setName(customer.getName());
@@ -67,9 +67,10 @@ public class CustomerService {
 
     @Transactional
     public void deleteCustomer(Long id) {
-        Customer existingCustomer = customerRepository.findById(id)
+        Customer existingCustomer = customerRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Customer with id " + id + " not found"));
-        customerRepository.delete(existingCustomer);
+        existingCustomer.setDeleted(true);
+        customerRepository.save(existingCustomer);
     }
 
     private CustomerResponse toResponse(Customer customer) {

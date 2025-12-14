@@ -26,7 +26,7 @@ public class AccountService {
 
     public AccountResponse createAccount(CreateAccountRequest account) {
 
-        Customer customer = customerRepository.findById(account.getCustomerId())
+        Customer customer = customerRepository.findByIdAndIsDeletedFalse(account.getCustomerId())
                 .orElseThrow(()-> new NotFoundException("Customer not found"));
 
         Account newAccount = new Account();
@@ -41,38 +41,38 @@ public class AccountService {
     }
 
     public AccountResponse findById(Long id) {
-        Account account = accountRepository.findById(id)
+        Account account = accountRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(()-> new NotFoundException("Account not found"));
         return toResponse(account);
     }
 
     public AccountResponse findByIban(String iban) {
-        Account account = accountRepository.findByIban(iban)
+        Account account = accountRepository.findByIbanAndIsDeletedFalse(iban)
                 .orElseThrow(()-> new NotFoundException("Account not found"));
         return toResponse(account);
     }
 
     public List<AccountResponse> findByCustomerId(Long customerId) {
 
-        Customer customer = customerRepository.findById(customerId)
+        Customer customer = customerRepository.findByIdAndIsDeletedFalse(customerId)
                 .orElseThrow(()-> new NotFoundException("Customer not found"));
 
-        return accountRepository.findByCustomerId(customerId)
+        return accountRepository.findByCustomerIdAndIsDeletedFalse(customerId)
                 .stream()
                 .map(this::toResponse)
                 .toList();
     }
 
     public List<AccountResponse> findAll() {
-        return accountRepository.findAll().stream()
+        return accountRepository.findAllByIsDeletedFalse().stream()
                 .map(this::toResponse).toList();
     }
 
     public void deleteAccount(Long id) {
-        Account existingAccount = accountRepository.findById(id)
+        Account existingAccount = accountRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(()-> new NotFoundException("Account with id " + id + " not found"));
-        accountRepository.delete(existingAccount);
-
+        existingAccount.setDeleted(true);
+        accountRepository.save(existingAccount);
     }
 
     private AccountResponse toResponse(Account account) {
