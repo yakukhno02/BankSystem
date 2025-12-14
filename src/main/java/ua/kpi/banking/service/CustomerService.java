@@ -7,7 +7,12 @@ import ua.kpi.banking.dto.customer.CreateCustomerRequest;
 import ua.kpi.banking.dto.customer.CustomerResponse;
 import ua.kpi.banking.dto.customer.UpdateCustomerRequest;
 import ua.kpi.banking.exception.NotFoundException;
+import ua.kpi.banking.model.Account;
+import ua.kpi.banking.model.Card;
+import ua.kpi.banking.model.CardStatus;
 import ua.kpi.banking.model.Customer;
+import ua.kpi.banking.repository.AccountRepository;
+import ua.kpi.banking.repository.CardRepository;
 import ua.kpi.banking.repository.CustomerRepository;
 
 import java.util.List;
@@ -16,10 +21,14 @@ import java.util.List;
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
+    private final AccountRepository accountRepository;
+    private final CardRepository cardRepository;
 
     @Autowired
-    public CustomerService(CustomerRepository customerRepository) {
+    public CustomerService(CustomerRepository customerRepository, AccountRepository accountRepository, CardRepository cardRepository) {
         this.customerRepository = customerRepository;
+        this.accountRepository = accountRepository;
+        this.cardRepository = cardRepository;
     }
 
     public CustomerResponse createCustomer(CreateCustomerRequest request) {
@@ -69,6 +78,18 @@ public class CustomerService {
     public void deleteCustomer(Long id) {
         Customer existingCustomer = customerRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Customer with id " + id + " not found"));
+
+        List<Account> accounts = accountRepository.findByCustomerIdAndIsDeletedFalse(id);
+
+        for (Account account : accounts) {
+            List<Card> cards = cardRepository.findByAccountId(account.getId());
+            for (Card card : cards) {
+                card.setStatus(CardStatus.CLOSED);
+            }
+            cardRepository.saveAll(cards);
+            account.setDeleted(true);
+        }
+
         existingCustomer.setDeleted(true);
         customerRepository.save(existingCustomer);
     }

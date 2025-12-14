@@ -45,9 +45,13 @@ public class CardController {
         return ResponseEntity.ok(cardService.getAllCardsByCustomerId(customerId));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCard(@PathVariable Long id) {
-        cardService.deleteCard(id);
-        return ResponseEntity.noContent().build();
+    @PatchMapping("/{id}/block")
+    public ResponseEntity<CardResponse> blockCard(@PathVariable Long id) {
+        return ResponseEntity.ok(cardService.blockCard(id));
+    }
+
+    @PatchMapping("/{id}/close")
+    public ResponseEntity<CardResponse> closeCard(@PathVariable Long id) {
+        return ResponseEntity.ok(cardService.closeCard(id));
     }
 }

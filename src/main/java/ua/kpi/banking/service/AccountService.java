@@ -6,8 +6,11 @@ import ua.kpi.banking.dto.account.AccountResponse;
 import ua.kpi.banking.dto.account.CreateAccountRequest;
 import ua.kpi.banking.exception.NotFoundException;
 import ua.kpi.banking.model.Account;
+import ua.kpi.banking.model.Card;
+import ua.kpi.banking.model.CardStatus;
 import ua.kpi.banking.model.Customer;
 import ua.kpi.banking.repository.AccountRepository;
+import ua.kpi.banking.repository.CardRepository;
 import ua.kpi.banking.repository.CustomerRepository;
 
 import java.util.List;
@@ -17,11 +20,13 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final CustomerRepository customerRepository;
+    private final CardRepository cardRepository;
 
     @Autowired
-    public AccountService(AccountRepository accountRepository, CustomerRepository customerRepository) {
+    public AccountService(AccountRepository accountRepository, CustomerRepository customerRepository, CardRepository cardRepository) {
         this.accountRepository = accountRepository;
         this.customerRepository = customerRepository;
+        this.cardRepository = cardRepository;
     }
 
     public AccountResponse createAccount(CreateAccountRequest account) {
@@ -71,6 +76,14 @@ public class AccountService {
     public void deleteAccount(Long id) {
         Account existingAccount = accountRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(()-> new NotFoundException("Account with id " + id + " not found"));
+
+        List<Card> cards = cardRepository.findByAccountId(existingAccount.getId());
+
+        for (Card card : cards) {
+            card.setStatus(CardStatus.CLOSED);
+        }
+        cardRepository.saveAll(cards);
+
         existingAccount.setDeleted(true);
         accountRepository.save(existingAccount);
     }

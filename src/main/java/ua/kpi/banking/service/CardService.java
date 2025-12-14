@@ -7,6 +7,7 @@ import ua.kpi.banking.dto.card.CreateCardRequest;
 import ua.kpi.banking.exception.NotFoundException;
 import ua.kpi.banking.model.Account;
 import ua.kpi.banking.model.Card;
+import ua.kpi.banking.model.CardStatus;
 import ua.kpi.banking.model.Customer;
 import ua.kpi.banking.repository.AccountRepository;
 import ua.kpi.banking.repository.CardRepository;
@@ -76,10 +77,26 @@ public class CardService {
                 .toList();
     }
 
-    public void deleteCard(Long id) {
-        Card existingCard = cardRepository.findById(id)
-                .orElseThrow(()-> new NotFoundException("Card with id " + id + " not found"));
-        cardRepository.deleteById(id);
+    public CardResponse blockCard(Long id) {
+        Card card =  cardRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Card not found"));
+        if (card.getStatus() == CardStatus.CLOSED) {
+            throw new RuntimeException("Closed card can't be blocked");
+        }
+
+        if (card.getStatus() == CardStatus.BLOCKED) {
+            throw new RuntimeException("Blocked card can't be blocked");
+        }
+
+        card.setStatus(CardStatus.BLOCKED);
+        return toResponse(cardRepository.save(card));
+    }
+
+    public CardResponse closeCard(Long id) {
+        Card card = cardRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Card not found"));
+        card.setStatus(CardStatus.CLOSED);
+        return toResponse(cardRepository.save(card));
     }
 
     private CardResponse toResponse(Card card) {
@@ -88,6 +105,7 @@ public class CardService {
                 card.getCardNumber(),
                 card.getExpirationDate(),
                 card.getType(),
+                card.getStatus(),
                 card.getAccount().getId()
         );
     }
