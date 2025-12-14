@@ -44,7 +44,7 @@ class CustomerAccountIntegrationTest {
         accountRequest.setIban("UA12345678901234567890123456");
         accountRequest.setBalance(BigDecimal.valueOf(1000));
         accountRequest.setCurrency("UAH");
-        accountRequest.setType(AccountType.DEBIT);
+        accountRequest.setType(AccountType.SAVING);
         accountRequest.setCustomerId(customer.getId());
 
         AccountResponse account = accountService.createAccount(accountRequest);
