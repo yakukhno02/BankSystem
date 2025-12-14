@@ -47,7 +47,7 @@ class TransactionIntegrationTest {
         fromReq.setIban("UA111");
         fromReq.setBalance(BigDecimal.valueOf(1000));
         fromReq.setCurrency("UAH");
-        fromReq.setType(AccountType.DEBIT);
+        fromReq.setType(AccountType.SAVING);
         fromReq.setCustomerId(customer.getId());
 
         var fromAccount = accountService.createAccount(fromReq);
@@ -56,7 +56,7 @@ class TransactionIntegrationTest {
         toReq.setIban("UA222");
         toReq.setBalance(BigDecimal.ZERO);
         toReq.setCurrency("UAH");
-        toReq.setType(AccountType.DEBIT);
+        toReq.setType(AccountType.SAVING);
         toReq.setCustomerId(customer.getId());
 
         var toAccount = accountService.createAccount(toReq);
