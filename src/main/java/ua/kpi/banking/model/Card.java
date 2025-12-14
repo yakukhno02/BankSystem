@@ -34,4 +34,8 @@ public class Card {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private CardType type;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CardStatus status = CardStatus.ACTIVE;
 }
