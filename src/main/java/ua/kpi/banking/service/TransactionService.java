@@ -45,9 +45,9 @@ public class TransactionService {
         newTransaction.setDate(LocalDateTime.now());
 
         switch (transaction.getType()) {
-            case transfer -> handleTransfer(transaction, newTransaction);
-            case withdraw -> handleWithdraw(transaction, newTransaction);
-            case deposit  -> handleDeposit(transaction, newTransaction);
+            case TRANSFER -> handleTransfer(transaction, newTransaction);
+            case WITHDRAW -> handleWithdraw(transaction, newTransaction);
+            case DEPOSIT  -> handleDeposit(transaction, newTransaction);
         }
 
         transactionRepository.save(newTransaction);
@@ -113,7 +113,7 @@ public class TransactionService {
         Account to = accountRepository.findById(transaction.getToAccountId())
                 .orElseThrow(() -> new NotFoundException("Account not found"));
 
-        if (from.getType() == AccountType.deposit) {
+        if (from.getType() == AccountType.DEPOSIT) {
             throw new BadRequestException("Transfers from deposit account are not allowed");
         }
 
@@ -144,7 +144,7 @@ public class TransactionService {
             throw new BadRequestException("Insufficient funds");
         }
 
-        if (account.getType() == AccountType.deposit) {
+        if (account.getType() == AccountType.DEPOSIT) {
             throw new BadRequestException("Withdraw from deposit account are not allowed");
         }
 
