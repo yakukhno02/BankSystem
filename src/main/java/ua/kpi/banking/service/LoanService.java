@@ -1,0 +1,101 @@
+package ua.kpi.banking.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ua.kpi.banking.dto.loan.CreateLoanRequest;
+import ua.kpi.banking.dto.loan.LoanResponse;
+import ua.kpi.banking.dto.loan.UpdateLoanRequest;
+import ua.kpi.banking.exception.NotFoundException;
+import ua.kpi.banking.model.Account;
+import ua.kpi.banking.model.Loan;
+import ua.kpi.banking.model.LoanStatus;
+import ua.kpi.banking.repository.AccountRepository;
+import ua.kpi.banking.repository.LoanRepository;
+
+import java.util.List;
+
+@Service
+public class LoanService {
+
+    private final LoanRepository loanRepository;
+    private final AccountRepository accountRepository;
+
+    @Autowired
+    public LoanService(LoanRepository loanRepository, AccountRepository accountRepository) {
+        this.loanRepository = loanRepository;
+        this.accountRepository = accountRepository;
+    }
+
+    @Transactional
+    public LoanResponse createLoan(CreateLoanRequest loan) {
+
+        Account account = accountRepository.findById(loan.getAccountId())
+                .orElseThrow(() -> new NotFoundException("Account not found"));
+
+        Loan newLoan = new Loan();
+
+        newLoan.setAmount(loan.getAmount());
+        newLoan.setEndDate(loan.getEndDate());
+        newLoan.setStartDate(loan.getStartDate());
+        newLoan.setStatus(loan.getStatus());
+        newLoan.setInterestRate(loan.getInterestRate());
+        newLoan.setAccount(account);
+        newLoan = loanRepository.save(newLoan);
+
+        return toResponse(newLoan);
+    }
+
+    public LoanResponse getLoanById(Long id) {
+        Loan loan = loanRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Loan not found") );
+        return toResponse(loan);
+    }
+
+    public List<LoanResponse> getByAccountId(Long accountId) {
+
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new NotFoundException("Account not found"));
+
+        return loanRepository.findByAccountId(accountId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public List<LoanResponse> getByStatus(LoanStatus status) {
+        return loanRepository.findByStatus(status)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Transactional
+    public LoanResponse updateLoan(Long id, UpdateLoanRequest loan) {
+        Loan existingLoan = loanRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Loan with id " + id + " not found"));
+
+        existingLoan.setEndDate(loan.getEndDate());
+        existingLoan.setStatus(loan.getStatus());
+        return toResponse(loanRepository.save(existingLoan));
+    }
+
+    @Transactional
+    public void deleteLoan(Long id) {
+        Loan existingLoan = loanRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Loan with id " + id + " not found"));
+        loanRepository.deleteById(id);
+    }
+
+    private LoanResponse toResponse(Loan loan) {
+        return new LoanResponse(
+                loan.getId(),
+                loan.getAmount(),
+                loan.getInterestRate(),
+                loan.getStartDate(),
+                loan.getEndDate(),
+                loan.getStatus(),
+                loan.getAccount().getId()
+        );
+    }
+}
