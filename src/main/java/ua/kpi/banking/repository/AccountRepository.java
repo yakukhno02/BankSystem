@@ -2,17 +2,17 @@ package ua.kpi.banking.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import ua.kpi.banking.model.Account;
+import ua.kpi.banking.model.AccountStatus;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface AccountRepository extends JpaRepository<Account, Long> {
+    Optional<Account> findByIdAndStatus(Long id, AccountStatus status);
 
-    Optional<Account> findByIdAndIsDeletedFalse(Long id);
+    Optional<Account> findByIbanAndStatus(String iban, AccountStatus status);
 
-    Optional<Account> findByIbanAndIsDeletedFalse(String iban);
+    List<Account> findByCustomer_IdAndStatus(Long customerId, AccountStatus status);
 
-    List<Account> findByCustomerIdAndIsDeletedFalse(Long customerId);
-
-    List<Account> findAllByIsDeletedFalse();
+    List<Account> findAllByStatus(AccountStatus status);
 }

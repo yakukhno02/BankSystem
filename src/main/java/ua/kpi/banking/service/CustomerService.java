@@ -7,10 +7,7 @@ import ua.kpi.banking.dto.customer.CreateCustomerRequest;
 import ua.kpi.banking.dto.customer.CustomerResponse;
 import ua.kpi.banking.dto.customer.UpdateCustomerRequest;
 import ua.kpi.banking.exception.NotFoundException;
-import ua.kpi.banking.model.Account;
-import ua.kpi.banking.model.Card;
-import ua.kpi.banking.model.CardStatus;
-import ua.kpi.banking.model.Customer;
+import ua.kpi.banking.model.*;
 import ua.kpi.banking.repository.AccountRepository;
 import ua.kpi.banking.repository.CardRepository;
 import ua.kpi.banking.repository.CustomerRepository;
@@ -43,21 +40,21 @@ public class CustomerService {
     }
 
     public CustomerResponse findById(Long id) {
-        Customer customer = customerRepository.findByIdAndIsDeletedFalse(id)
+        Customer customer = customerRepository.findByIdAndStatus(id, CustomerStatus.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Customer not found"));
 
         return toResponse(customer);
     }
 
     public CustomerResponse findByEmail(String email) {
-        Customer customer = customerRepository.findByEmailAndIsDeletedFalse(email)
+        Customer customer = customerRepository.findByEmailAndStatus(email, CustomerStatus.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Customer not found"));
 
         return toResponse(customer);
     }
 
     public List<CustomerResponse> findAll() {
-       return customerRepository.findAllByIsDeletedFalse()
+       return customerRepository.findAllByStatus(CustomerStatus.ACTIVE)
                .stream()
                .map(this::toResponse)
                .toList();
@@ -65,7 +62,7 @@ public class CustomerService {
 
     @Transactional
     public CustomerResponse updateCustomer(Long id, UpdateCustomerRequest customer) {
-        Customer existingCustomer = customerRepository.findByIdAndIsDeletedFalse(id)
+        Customer existingCustomer = customerRepository.findByIdAndStatus(id, CustomerStatus.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Customer with id " + id + " not found"));
 
         existingCustomer.setName(customer.getName());
@@ -78,10 +75,10 @@ public class CustomerService {
 
     @Transactional
     public void deleteCustomer(Long id) {
-        Customer existingCustomer = customerRepository.findByIdAndIsDeletedFalse(id)
+        Customer existingCustomer = customerRepository.findByIdAndStatus(id, CustomerStatus.ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Customer with id " + id + " not found"));
 
-        List<Account> accounts = accountRepository.findByCustomerIdAndIsDeletedFalse(id);
+        List<Account> accounts = accountRepository.findByCustomer_IdAndStatus(id, AccountStatus.ACTIVE);
 
         for (Account account : accounts) {
             List<Card> cards = cardRepository.findByAccountId(account.getId());
@@ -89,10 +86,10 @@ public class CustomerService {
                 card.setStatus(CardStatus.CLOSED);
             }
             cardRepository.saveAll(cards);
-            account.setDeleted(true);
+            account.setStatus(AccountStatus.CLOSED);
         }
 
-        existingCustomer.setDeleted(true);
+        existingCustomer.setStatus(CustomerStatus.CLOSED);
         customerRepository.save(existingCustomer);
     }
 
