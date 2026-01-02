@@ -3,8 +3,9 @@ CREATE TABLE customer (
                           name VARCHAR(32) NOT NULL,
                           surname VARCHAR(32) NOT NULL,
                           email VARCHAR(64) NOT NULL UNIQUE,
-                          phone_number VARCHAR(20) NOT NULL,
-                          is_deleted BOOLEAN NOT NULL DEFAULT FALSE
+                          phone_number VARCHAR(20) NOT NULL UNIQUE,
+                          status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE'
+                          CHECK (status IN ('ACTIVE', 'BLOCKED', 'CLOSED'))
 );
 
 CREATE TABLE account (
@@ -14,7 +15,8 @@ CREATE TABLE account (
                          currency VARCHAR(3) NOT NULL,
                          type VARCHAR(20) NOT NULL CHECK (type IN ('CREDIT', 'SAVING', 'DEPOSIT')),
                          customer_id INT NOT NULL REFERENCES customer(customer_id),
-                         is_deleted BOOLEAN NOT NULL DEFAULT FALSE
+                         status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE'
+                         CHECK (status IN ('ACTIVE', 'CLOSED', 'FROZEN'))
 );
 
 CREATE TABLE card (
