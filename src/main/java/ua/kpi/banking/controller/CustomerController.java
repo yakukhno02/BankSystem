@@ -1,5 +1,6 @@
 package ua.kpi.banking.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ public class CustomerController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<CustomerResponse> registerCustomer(@RequestBody CreateCustomerRequest dto) {
+    public ResponseEntity<CustomerResponse> registerCustomer(@Valid @RequestBody CreateCustomerRequest dto) {
         return ResponseEntity.ok(customerService.createCustomer(dto));
     }
 

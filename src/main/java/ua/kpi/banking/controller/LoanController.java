@@ -1,6 +1,7 @@
 package ua.kpi.banking.controller;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ua.kpi.banking.dto.loan.CreateLoanRequest;
@@ -22,7 +23,7 @@ public class LoanController {
     }
 
     @PostMapping
-    public ResponseEntity<LoanResponse> createLoan(@RequestBody CreateLoanRequest loan) {
+    public ResponseEntity<LoanResponse> createLoan(@Valid @RequestBody CreateLoanRequest loan) {
         return ResponseEntity.ok(loanService.createLoan(loan));
     }
 
