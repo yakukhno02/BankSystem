@@ -33,3 +33,7 @@ build/
 .vscode/
 
 .env
+
+init-scripts/test-data.sql
+
+.DS_Store

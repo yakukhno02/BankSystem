@@ -6,10 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ua.kpi.banking.dto.account.AccountResponse;
 import ua.kpi.banking.dto.account.CreateAccountRequest;
 import ua.kpi.banking.exception.NotFoundException;
-import ua.kpi.banking.model.Account;
-import ua.kpi.banking.model.Card;
-import ua.kpi.banking.model.CardStatus;
-import ua.kpi.banking.model.Customer;
+import ua.kpi.banking.model.*;
 import ua.kpi.banking.repository.AccountRepository;
 import ua.kpi.banking.repository.CardRepository;
 import ua.kpi.banking.repository.CustomerRepository;
@@ -33,7 +30,7 @@ public class AccountService {
     @Transactional
     public AccountResponse createAccount(CreateAccountRequest account) {
 
-        Customer customer = customerRepository.findByIdAndIsDeletedFalse(account.getCustomerId())
+        Customer customer = customerRepository.findByIdAndStatus(account.getCustomerId(), CustomerStatus.ACTIVE)
                 .orElseThrow(()-> new NotFoundException("Customer not found"));
 
         Account newAccount = new Account();
@@ -48,36 +45,36 @@ public class AccountService {
     }
 
     public AccountResponse findById(Long id) {
-        Account account = accountRepository.findByIdAndIsDeletedFalse(id)
+        Account account = accountRepository.findByIdAndStatus(id, AccountStatus.ACTIVE)
                 .orElseThrow(()-> new NotFoundException("Account not found"));
         return toResponse(account);
     }
 
     public AccountResponse findByIban(String iban) {
-        Account account = accountRepository.findByIbanAndIsDeletedFalse(iban)
+        Account account = accountRepository.findByIbanAndStatus(iban, AccountStatus.ACTIVE)
                 .orElseThrow(()-> new NotFoundException("Account not found"));
         return toResponse(account);
     }
 
     public List<AccountResponse> findByCustomerId(Long customerId) {
 
-        Customer customer = customerRepository.findByIdAndIsDeletedFalse(customerId)
+        Customer customer = customerRepository.findByIdAndStatus(customerId, CustomerStatus.ACTIVE)
                 .orElseThrow(()-> new NotFoundException("Customer not found"));
 
-        return accountRepository.findByCustomerIdAndIsDeletedFalse(customerId)
+        return accountRepository.findByCustomer_IdAndStatus(customerId, AccountStatus.ACTIVE)
                 .stream()
                 .map(this::toResponse)
                 .toList();
     }
 
     public List<AccountResponse> findAll() {
-        return accountRepository.findAllByIsDeletedFalse().stream()
+        return accountRepository.findAllByStatus(AccountStatus.ACTIVE).stream()
                 .map(this::toResponse).toList();
     }
 
     @Transactional
     public void deleteAccount(Long id) {
-        Account existingAccount = accountRepository.findByIdAndIsDeletedFalse(id)
+        Account existingAccount = accountRepository.findByIdAndStatus(id, AccountStatus.ACTIVE)
                 .orElseThrow(()-> new NotFoundException("Account with id " + id + " not found"));
 
         List<Card> cards = cardRepository.findByAccountId(existingAccount.getId());
@@ -87,7 +84,7 @@ public class AccountService {
         }
         cardRepository.saveAll(cards);
 
-        existingAccount.setDeleted(true);
+        existingAccount.setStatus(AccountStatus.CLOSED);
         accountRepository.save(existingAccount);
     }
 

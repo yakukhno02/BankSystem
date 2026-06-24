@@ -1,5 +1,6 @@
 package ua.kpi.banking.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ua.kpi.banking.dto.transaction.CreateTransactionRequest;
@@ -20,7 +21,7 @@ public class TransactionController {
     }
 
     @PostMapping
-    public ResponseEntity<TransactionResponse> createTransaction(@RequestBody CreateTransactionRequest transaction) {
+    public ResponseEntity<TransactionResponse> createTransaction(@Valid @RequestBody CreateTransactionRequest transaction) {
         return ResponseEntity.ok(transactionService.createTransaction(transaction));
     }
 

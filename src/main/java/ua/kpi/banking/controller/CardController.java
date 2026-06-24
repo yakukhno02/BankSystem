@@ -1,5 +1,6 @@
 package ua.kpi.banking.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ public class CardController {
     }
 
     @PostMapping
-    public CardResponse createCard(@RequestBody CreateCardRequest card) {
+    public CardResponse createCard(@Valid @RequestBody CreateCardRequest card) {
         return cardService.createCard(card);
     }
 

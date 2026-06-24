@@ -31,6 +31,7 @@ public class Customer {
     @Column(name = "phone_number", nullable = false, length = 20)
     private String phoneNumber;
 
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CustomerStatus status = CustomerStatus.ACTIVE;
 }
