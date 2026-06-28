@@ -144,12 +144,12 @@ public class TransactionService {
         Account account = accountRepository.findById(transaction.getFromAccountId())
                 .orElseThrow(() -> new NotFoundException("Account not found"));
 
-        if (account.getBalance().compareTo(transaction.getAmount()) < 0) {
-            throw new BadRequestException("Insufficient funds");
-        }
-
         if (account.getType() == AccountType.DEPOSIT) {
             throw new BadRequestException("Withdraw from deposit account are not allowed");
+        }
+
+        if (account.getBalance().compareTo(transaction.getAmount()) < 0) {
+            throw new BadRequestException("Insufficient funds");
         }
 
         account.setBalance(account.getBalance().subtract(transaction.getAmount()));
