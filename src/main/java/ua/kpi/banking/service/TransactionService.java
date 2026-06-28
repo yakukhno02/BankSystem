@@ -44,10 +44,15 @@ public class TransactionService {
         newTransaction.setDescription(transaction.getDescription());
         newTransaction.setDate(LocalDateTime.now());
 
+        if (transaction.getType() == null) {
+            throw new BadRequestException("Transaction type is required");
+        }
+
         switch (transaction.getType()) {
             case TRANSFER -> handleTransfer(transaction, newTransaction);
             case WITHDRAW -> handleWithdraw(transaction, newTransaction);
             case DEPOSIT  -> handleDeposit(transaction, newTransaction);
+            default -> throw new BadRequestException("Unsupported transaction type");
         }
 
         transactionRepository.save(newTransaction);
