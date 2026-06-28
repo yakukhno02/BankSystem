@@ -7,9 +7,10 @@
     <module name="NewlineAtEndOfFile"/>
 
     <module name="TreeWalker">
-        <module name="AvoidStarImport"/>
         <module name="UnusedImports"/>
         <module name="NeedBraces"/>
         <module name="EmptyBlock"/>
+        <module name="EmptyCatchBlock"/>
+        <module name="MissingSwitchDefault"/>
     </module>
 </module>
