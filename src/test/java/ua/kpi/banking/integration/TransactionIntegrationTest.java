@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ua.kpi.banking.dto.account.CreateAccountRequest;
 import ua.kpi.banking.dto.customer.CreateCustomerRequest;
 import ua.kpi.banking.dto.transaction.CreateTransactionRequest;
+import ua.kpi.banking.exception.BadRequestException;
 import ua.kpi.banking.model.AccountType;
 import ua.kpi.banking.model.TransactionType;
 import ua.kpi.banking.service.AccountService;
@@ -32,48 +33,85 @@ class TransactionIntegrationTest {
     @Autowired
     TransactionService transactionService;
 
+    private Long createCustomer() {
+        CreateCustomerRequest req = new CreateCustomerRequest();
+        req.setName("Olena");
+        req.setSurname("Kovalenko");
+        req.setEmail("olena" + System.nanoTime() + "@test.com");
+        req.setPhoneNumber("+380000001");
+        return customerService.createCustomer(req).getId();
+    }
+
+    private Long createAccount(Long customerId, String iban, BigDecimal balance, AccountType type) {
+        CreateAccountRequest req = new CreateAccountRequest();
+        req.setIban(iban);
+        req.setBalance(balance);
+        req.setCurrency("UAH");
+        req.setType(type);
+        req.setCustomerId(customerId);
+        return accountService.createAccount(req).getId();
+    }
+
     @Test
-    void shouldTransferMoneyBetweenAccounts() {
-
-        CreateCustomerRequest customerRequest = new CreateCustomerRequest();
-        customerRequest.setName("Ivan");
-        customerRequest.setSurname("Petrenko");
-        customerRequest.setEmail("ivan@test.com");
-        customerRequest.setPhoneNumber("+380000000");
-
-        var customer = customerService.createCustomer(customerRequest);
-
-        CreateAccountRequest fromReq = new CreateAccountRequest();
-        fromReq.setIban("UA111");
-        fromReq.setBalance(BigDecimal.valueOf(1000));
-        fromReq.setCurrency("UAH");
-        fromReq.setType(AccountType.SAVING);
-        fromReq.setCustomerId(customer.getId());
-
-        var fromAccount = accountService.createAccount(fromReq);
-
-        CreateAccountRequest toReq = new CreateAccountRequest();
-        toReq.setIban("UA222");
-        toReq.setBalance(BigDecimal.ZERO);
-        toReq.setCurrency("UAH");
-        toReq.setType(AccountType.SAVING);
-        toReq.setCustomerId(customer.getId());
-
-        var toAccount = accountService.createAccount(toReq);
+    void shouldDepositAndPersistNewBalance() {
+        Long customerId = createCustomer();
+        Long accountId = createAccount(customerId, "UA_DEP_1", BigDecimal.valueOf(100), AccountType.SAVING);
 
         CreateTransactionRequest tx = new CreateTransactionRequest();
-        tx.setFromAccountId(fromAccount.getId());
-        tx.setToAccountId(toAccount.getId());
-        tx.setAmount(BigDecimal.valueOf(300));
-        tx.setType(TransactionType.TRANSFER);
-        tx.setDescription("Test transfer");
+        tx.setType(TransactionType.DEPOSIT);
+        tx.setAmount(BigDecimal.valueOf(250));
+        tx.setToAccountId(accountId);
 
         transactionService.createTransaction(tx);
 
-        var updatedFrom = accountService.findById(fromAccount.getId());
-        var updatedTo = accountService.findById(toAccount.getId());
+        assertEquals(BigDecimal.valueOf(350), accountService.findById(accountId).getBalance());
+    }
 
-        assertEquals(BigDecimal.valueOf(700), updatedFrom.getBalance());
-        assertEquals(BigDecimal.valueOf(300), updatedTo.getBalance());
+    @Test
+    void shouldWithdrawAndPersistNewBalance() {
+        Long customerId = createCustomer();
+        Long accountId = createAccount(customerId, "UA_WD_1", BigDecimal.valueOf(500), AccountType.SAVING);
+
+        CreateTransactionRequest tx = new CreateTransactionRequest();
+        tx.setType(TransactionType.WITHDRAW);
+        tx.setAmount(BigDecimal.valueOf(200));
+        tx.setFromAccountId(accountId);
+
+        transactionService.createTransaction(tx);
+
+        assertEquals(BigDecimal.valueOf(300), accountService.findById(accountId).getBalance());
+    }
+
+    @Test
+    void shouldRollBackBothBalancesWhenTransferFails() {
+        Long customerId = createCustomer();
+        Long fromId = createAccount(customerId, "UA_RB_FROM", BigDecimal.valueOf(1000), AccountType.SAVING);
+        Long toId = createAccount(customerId, "UA_RB_TO", BigDecimal.valueOf(0), AccountType.SAVING);
+
+        CreateTransactionRequest tx = new CreateTransactionRequest();
+        tx.setType(TransactionType.TRANSFER);
+        tx.setFromAccountId(fromId);
+        tx.setToAccountId(toId);
+        tx.setAmount(BigDecimal.valueOf(1500)); // exceeds balance -> should throw and not save anything
+
+        assertThrows(BadRequestException.class, () -> transactionService.createTransaction(tx));
+
+        // balances must be untouched since the whole operation is @Transactional
+        assertEquals(BigDecimal.valueOf(1000), accountService.findById(fromId).getBalance());
+        assertEquals(BigDecimal.valueOf(0), accountService.findById(toId).getBalance());
+    }
+
+    @Test
+    void shouldRejectWithdrawFromDepositAccountEvenWithEnoughBalance() {
+        Long customerId = createCustomer();
+        Long accountId = createAccount(customerId, "UA_DEP_ACC", BigDecimal.valueOf(5000), AccountType.DEPOSIT);
+
+        CreateTransactionRequest tx = new CreateTransactionRequest();
+        tx.setType(TransactionType.WITHDRAW);
+        tx.setFromAccountId(accountId);
+        tx.setAmount(BigDecimal.valueOf(100)); // well within balance, but wrong account type
+
+        assertThrows(BadRequestException.class, () -> transactionService.createTransaction(tx));
+        assertEquals(BigDecimal.valueOf(5000), accountService.findById(accountId).getBalance());
     }
 }

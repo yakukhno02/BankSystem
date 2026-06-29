@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ua.kpi.banking.dto.card.CardResponse;
 import ua.kpi.banking.dto.card.CreateCardRequest;
+import ua.kpi.banking.exception.BadRequestException;
 import ua.kpi.banking.exception.NotFoundException;
 import ua.kpi.banking.model.Account;
 import ua.kpi.banking.model.Card;
@@ -84,11 +85,11 @@ public class CardService {
         Card card =  cardRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Card not found"));
         if (card.getStatus() == CardStatus.CLOSED) {
-            throw new RuntimeException("Closed card can't be blocked");
+            throw new BadRequestException("Closed card can't be blocked");
         }
 
         if (card.getStatus() == CardStatus.BLOCKED) {
-            throw new RuntimeException("Blocked card can't be blocked");
+            throw new BadRequestException("Blocked card can't be blocked");
         }
 
         card.setStatus(CardStatus.BLOCKED);
@@ -99,6 +100,11 @@ public class CardService {
     public CardResponse closeCard(Long id) {
         Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Card not found"));
+
+        if (card.getStatus() == CardStatus.CLOSED) {
+            throw new BadRequestException("Card is already closed");
+        }
+
         card.setStatus(CardStatus.CLOSED);
         return toResponse(cardRepository.save(card));
     }

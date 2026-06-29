@@ -57,7 +57,7 @@ public class LoanService {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new NotFoundException("Account not found"));
 
-        return loanRepository.findByAccountId(accountId)
+        return loanRepository.findByAccountIdAndStatusNot(accountId, LoanStatus.CLOSED)
                 .stream()
                 .map(this::toResponse)
                 .toList();
@@ -84,7 +84,9 @@ public class LoanService {
     public void deleteLoan(Long id) {
         Loan existingLoan = loanRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Loan with id " + id + " not found"));
-        loanRepository.deleteById(id);
+
+        existingLoan.setStatus(LoanStatus.CLOSED);
+        loanRepository.save(existingLoan);
     }
 
     private LoanResponse toResponse(Loan loan) {
