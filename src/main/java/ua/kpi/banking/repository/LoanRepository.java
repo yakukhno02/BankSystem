@@ -8,7 +8,8 @@ import java.util.List;
 
 public interface LoanRepository extends JpaRepository<Loan, Long> {
 
-    List<Loan> findByAccountId(Long accountId);
+    // exclude closed
+    List<Loan> findByAccountIdAndStatusNot(Long accountId, LoanStatus status);
 
     List<Loan> findByStatus(LoanStatus status);
 }
