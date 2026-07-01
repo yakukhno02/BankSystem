@@ -12,3 +12,8 @@ spring:
 
   flyway:
     enabled: false
+
+security:
+  jwt:
+    secret-key: test-secret-key-for-unit-tests-only-not-for-production-use
+    expiration-ms: 3600000
